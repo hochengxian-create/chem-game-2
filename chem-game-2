@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>化學實驗室大冒險 - 可愛高一化學互動遊戲</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: rgba(30, 27, 75, 0.85);
+            --primary: #38bdf8;
+            --primary-hover: #0ea5e9;
+            --accent: #34d399;
+            --danger: #fb7185;
+            --text-main: #ffffff;
+            --text-muted: #cbd5e1;
+            --border: rgba(56, 189, 248, 0.4);
+            --shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(56, 189, 248, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            user-select: none;
+        }
+
+        /* 絢麗動態漸變背景與輕量化化學氣泡 */
+        body {
+            background: linear-gradient(135deg, #0f172a, #311042, #1e1b4b, #06283d);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            padding: 20px;
+            position: relative;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 浮動泡泡背景裝飾 */
+        .bubble {
+            position: absolute;
+            bottom: -50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: rise 8s infinite linear;
+        }
+        @keyframes rise {
+            0% { transform: translateY(0) scale(1); opacity: 0.8; }
+            100% { transform: translateY(-105vh) scale(1.5); opacity: 0; }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            background: var(--panel-bg);
+            border: 2px solid var(--border);
+            border-radius: 30px;
+            box-shadow: var(--shadow);
+            padding: 40px 30px 30px 30px;
+            position: relative;
+            z-index: 2;
+            animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(16px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(25px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .audio-control {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            font-weight: bold;
+        }
+        .audio-control:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        h1, h2, h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            background: linear-gradient(135deg, #38bdf8, #f472b6, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(56, 189, 248, 0.4);
+        }
+
+        p {
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: scale(0.96); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* 立體Q彈按鈕 */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px 24px;
+            margin: 15px 0;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #4338ca, 0 12px 25px rgba(0,0,0,0.3);
+            transition: all 0.1s ease;
+            text-align: center;
+        }
+
+        .btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 0 #4338ca, 0 15px 30px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #4338ca, 0 5px 10px rgba(0,0,0,0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #64748b, #475569);
+            box-shadow: 0 6px 0 #334155, 0 12px 25px rgba(0,0,0,0.3);
+        }
+        .btn-secondary:active {
+            box-shadow: 0 2px 0 #334155, 0 5px 10px rgba(0,0,0,0.3);
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, #34d399, #059669);
+            box-shadow: 0 6px 0 #047857, 0 12px 25px rgba(0,0,0,0.3);
+        }
+        .btn-accent:active {
+            box-shadow: 0 2px 0 #047857, 0 5px 10px rgba(0,0,0,0.3);
+        }
+
+        .input-group {
+            margin: 25px 0;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(56, 189, 248, 0.5);
+            border-radius: 16px;
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            padding: 12px 18px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 14px;
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .game-header span {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .timer-container {
+            width: 100%;
+            height: 10px;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #38bdf8, #34d399);
+            transition: width 1s linear;
+        }
+
+        .question-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(56, 189, 248, 0.3);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            box-shadow: inset 0 3px 12px rgba(0,0,0,0.5);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: rgba(59, 53, 122, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            padding: 18px;
+            border-radius: 16px;
+            color: white;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background: rgba(76, 68, 145, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct {
+            background: #059669 !important;
+            border-color: var(--accent) !important;
+            box-shadow: 0 0 25px rgba(52, 211, 153, 0.6);
+        }
+
+        .option-btn.wrong {
+            background: #e11d48 !important;
+            border-color: var(--danger) !important;
+            box-shadow: 0 0 25px rgba(251, 113, 133, 0.6);
+        }
+
+        .feedback-box {
+            margin-top: 20px;
+            padding: 18px;
+            border-radius: 16px;
+            background: rgba(15, 23, 42, 0.7);
+            border-left: 6px solid var(--primary);
+            display: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .feedback-box.show {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .encouragement-tag {
+            display: inline-block;
+            background: rgba(52, 211, 153, 0.2);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 14px 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        th {
+            background: #3b357a;
+            color: var(--primary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .error-tip {
+            color: var(--danger);
+            font-size: 0.95rem;
+            text-align: center;
+            margin-top: 5px;
+            min-height: 20px;
+        }
+
+        #fireworks-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: none;
+            border-radius: 30px;
+            z-index: 10;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 25px 15px 20px 15px;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 背景動態氣泡 -->
+    <div class="bubble" style="left: 10%; width: 25px; height: 25px; animation-duration: 7s;"></div>
+    <div class="bubble" style="left: 30%; width: 40px; height: 40px; animation-duration: 10s; animation-delay: 2s;"></div>
+    <div class="bubble" style="left: 55%; width: 20px; height: 20px; animation-duration: 6s; animation-delay: 1s;"></div>
+    <div class="bubble" style="left: 75%; width: 35px; height: 35px; animation-duration: 9s; animation-delay: 3s;"></div>
+    <div class="bubble" style="left: 90%; width: 30px; height: 30px; animation-duration: 8s; animation-delay: 4s;"></div>
+
+    <div class="container">
+        <canvas id="fireworks-canvas"></canvas>
+
+        <div class="top-bar">
+            <span style="font-size: 1.2rem; font-weight: bold; color: #f472b6;">🧪 萌系化學實驗室</span>
+            <button class="audio-control" onclick="toggleAudio()">🔊 音效：開啟</button>
+        </div>
+
+        <!-- 1. 首頁畫面 -->
+        <div id="screen-home" class="screen active">
+            <h1>化學實驗室大冒險 ✨</h1>
+            <p>初高中銜接與高一核心化學趣味互動系統</p>
+            <div style="margin: 25px 0; text-align: center;">
+                <span style="font-size: 4.5rem; filter: drop-shadow(0 0 25px rgba(56,189,248,0.5));">🦄⚗️</span>
+            </div>
+            <button class="btn" onclick="goToScreen('screen-intro')">🚀 進入遊戲說明</button>
+            <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 查看英雄排行榜</button>
+        </div>
+
+        <!-- 2. 遊戲介紹頁 -->
+        <div id="screen-intro" class="screen">
+            <h2>📜 遊戲規則與說明</h2>
+            <p>歡迎來到可愛又刺激的化學實驗挑戰！本系統包含兩大化學模組：</p>
+            <p><b>1. 基礎鞏固模組（初三銜接）：</b>元素符號、化合價、離子、溶解性口訣。</p>
+            <p><b>2. 高一深化模組（核心推理）：</b>電離方程式、膠體、丁達爾效應、布朗運動、離子共存、酸鹼鹽反應。</p>
+            <p><b>✨ 亮點機制：</b>每題隨機抽題不重複、簡單15秒/困難10秒倒數計時、滿分對等平衡、歡快音效、錯題筆記與通關煙花！</p>
+            <button class="btn" onclick="goToScreen('screen-name')">👉 開始挑戰</button>
+            <button class="btn btn-secondary" onclick="goToScreen('screen-home')">🏠 返回首頁</button>
+        </div>
+
+        <!-- 3. 輸入玩家姓名 -->
+        <div id="screen-name" class="screen">
+            <h2>🏷️ 登記實驗員身份</h2>
+            <p>請輸入您的名字或座號，以便記錄排行榜成績：</p>
+            <div class="input-group">
+                <input type="text" id="player-name" placeholder="例如：高一化學組 — 小明" maxlength="15" onkeypress="checkEnter(event)">
+                <div class="error-tip" id="name-error-tip"></div>
+            </div>
+            <button class="btn" onclick="validateName()">➡️ 下一步：選擇挑戰難度</button>
+            <button class="btn btn-secondary" onclick="goToScreen('screen-intro')">⬅️ 回上頁</button>
+        </div>
+
+        <!-- 4. 選擇難度 -->
+        <div id="screen-difficulty" class="screen">
+            <h2>⚡ 選擇挑戰難度級別</h2>
+            <p>兩套獨立題庫（各 50 題），每次進入隨機洗牌抽題：</p>
+            
+            <button class="btn btn-accent" onclick="startGame('easy')">
+                <b>🟢 簡單模式（基礎鞏固）</b><br>
+                <span style="font-size: 0.9rem; opacity: 0.9;">15秒/題，總分滿分 100 分</span>
+            </button>
+            <button class="btn" onclick="startGame('hard')">
+                <b>🔴 困難模式（高一核心推理）</b><br>
+                <span style="font-size: 0.9rem; opacity: 0.9;">10秒/題，總分滿分 100 分</span>
+            </button>
+            <button class="btn btn-secondary" onclick="goToScreen('screen-name')">⬅️ 回上頁</button>
+        </div>
+
+        <!-- 5. 遊戲闖關主畫面 -->
+        <div id="screen-game" class="screen">
+            <div class="game-header">
+                <div>實驗員：<span id="ui-player"></span></div>
+                <div>進度：<span id="ui-progress">1/5</span></div>
+                <div>得分：<span id="ui-score">0</span></div>
+            </div>
+
+            <div class="timer-container">
+                <div class="timer-bar" id="timer-bar"></div>
+            </div>
+
+            <div class="question-box" id="ui-question">
+                載入中...
+            </div>
+
+            <div class="options-grid" id="ui-options">
+                <!-- 動態選項 -->
+            </div>
+
+            <div class="feedback-box" id="ui-feedback">
+                <div class="encouragement-tag" id="encouragement-text">太棒了！</div>
+                <div id="feedback-title" style="font-weight: bold; font-size: 1.1rem;"></div>
+                <p id="feedback-desc" style="margin-top: 8px; margin-bottom: 0; text-align: left;"></p>
+            </div>
+
+            <button class="btn btn-accent" id="next-btn" style="display: none; margin-top: 20px;" onclick="nextQuestion()">➡️ 下一題</button>
+        </div>
+
+        <!-- 6. 成績結算頁 -->
+        <div id="screen-result" class="screen">
+            <h2>🎉 實驗結算報告</h2>
+            <div style="text-align: center; margin: 20px 0; position: relative; z-index: 11;">
+                <span style="font-size: 4rem;" id="result-emoji">🏆</span>
+                <h3 id="final-score-text" style="font-size: 2.2rem; margin-top: 10px; color: var(--primary);">最終得分：100分</h3>
+                <p id="result-comment" style="margin-top: 10px; font-size: 1.1rem;"></p>
+            </div>
+            <div style="position: relative; z-index: 11;">
+                <button class="btn" id="wrong-book-btn" style="display: none;" onclick="showWrongBook()">📖 查看錯題溫習筆記</button>
+                <button class="btn btn-accent" onclick="goToScreen('screen-home')">🏠 返回首頁</button>
+                <button class="btn btn-secondary" onclick="showLeaderboard()">🏆 查看排行榜</button>
+            </div>
+        </div>
+
+        <!-- 7. 排行榜畫面 -->
+        <div id="screen-leaderboard" class="screen">
+            <h2>🏆 實驗室英雄排行榜</h2>
+            <p>紀錄本機前幾名的化學菁英：</p>
+            <div id="leaderboard-content"></div>
+            <button class="btn btn-secondary" onclick="goToScreen('screen-home')">🏠 返回首頁</button>
+        </div>
+
+        <!-- 8. 錯題本畫面 -->
+        <div id="screen-wrong-book" class="screen">
+            <h2>📖 錯題溫習筆記</h2>
+            <p>以下是您本次挑戰答錯或超時的題目，建議加強複習：</p>
+            <div id="wrong-list-content" style="max-height: 320px; overflow-y: auto; padding-right: 5px;"></div>
+            <button class="btn btn-secondary" onclick="goToScreen('screen-result')">⬅️ 返回結算頁</button>
+        </div>
+    </div>
+
+    <script>
+        // ------------------ 語音與音效系統 ------------------
+        let audioCtx = null;
+        let isAudioEnabled = true;
+        let bgmInterval = null;
+
+        function initAudio() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            } catch (e) {}
+        }
+
+        function toggleAudio() {
+            initAudio();
+            isAudioEnabled = !isAudioEnabled;
+            const btn = document.querySelector('.audio-control');
+            if (isAudioEnabled) {
+                btn.innerText = "🔊 音效：開啟";
+                playBGM();
+            } else {
+                btn.innerText = "🔇 音效：關閉";
+                stopBGM();
+            }
+        }
+
+        function playCorrectSound() {
+            if (!isAudioEnabled || !audioCtx) return;
+            try {
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    setTimeout(() => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start();
+                        osc.stop(audioCtx.currentTime + 0.3);
+                    }, idx * 80);
+                });
+            } catch (e) {}
+        }
+
+        function playWrongSound() {
+            if (!isAudioEnabled || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(90, audioCtx.currentTime + 0.3);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } catch (e) {}
+        }
+
+        function playBGM() {
+            if (bgmInterval) return;
+            const chordProgression = [
+                [261.63, 329.63, 392.00],
+                [220.00, 261.63, 329.63],
+                [174.61, 220.00, 261.63],
+                [196.00, 246.94, 293.66]
+            ];
+            let step = 0;
+            bgmInterval = setInterval(() => {
+                if (!isAudioEnabled || !audioCtx) return;
+                try {
+                    const chord = chordProgression[step % chordProgression.length];
+                    step++;
+                    chord.forEach(freq => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq / 2, audioCtx.currentTime);
+                        gain.gain.setValueAtTime(0.025, audioCtx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.8);
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start();
+                        osc.stop(audioCtx.currentTime + 1.8);
+                    });
+                } catch (e) {}
+            }, 2000);
+        }
+
+        function stopBGM() {
+            if (bgmInterval) {
+                clearInterval(bgmInterval);
+                bgmInterval = null;
+            }
+        }
+
+        // ------------------ 題庫 (簡單50題、困難50題，完全對應初中+高一指定知識範圍) ------------------
+        const questionBank = {
+            easy: [
+                { q: "下列元素符號書寫完全正確的是哪一個？", options: ["① 銅 cu", "② 鈉 NA", "③ 鎂 Mg", "④ 鈣 CA"], answer: 2, explanation: "鎂的正確符號是 Mg；銅是 Cu；鈉是 Na；鈣是 Ca（一大二小規則）。" },
+                { q: "空氣中體積分數約佔 78% 的氣體元素，其符號是什麼？", options: ["O", "N", "C", "H"], answer: 1, explanation: "空氣中體積分數最大的是氮氣（N<sub>2</sub>），元素為氮，符號 N。" },
+                { q: "地殼中含量最多的金屬元素是什麼？", options: ["鐵 (Fe)", "鋁 (Al)", "鈣 (Ca)", "銅 (Cu)"], answer: 1, explanation: "地殼中元素含量前三位是：氧、矽、鋁，故最多金屬為鋁。" },
+                { q: "已知氫顯 +1 價，氧顯 -2 價，水的正確化學式為何？", options: ["HO", "H<sub>2</sub>O", "H<sub>2</sub>O<sub>2</sub>", "HO<sub>2</sub>"], answer: 1, explanation: "(+1)×2 + (-2)×1 = 0，故水為 H<sub>2</sub>O。" },
+                { q: "鈣離子（Ca<sup>2+</sup>）與氯離子（Cl<sup>-</sup>）結合的化學式為何？", options: ["CaCl", "CaCl<sub>2</sub>", "Ca<sub>2</sub>Cl", "Ca(Cl)<sub>2</sub>"], answer: 1, explanation: "需 2 個氯離子平衡 2 個正電荷，即 CaCl<sub>2</sub>。" },
+                { q: "下列物質的俗稱與化學式對應錯誤的是？", options: ["干冰 — CO<sub>2</sub>", "生石灰 — CaO", "小蘇打 — Na<sub>2</sub>CO<sub>3</sub>", "熟石灰 — Ca(OH)<sub>2</sub>"], answer: 2, explanation: "小蘇打為 NaHCO<sub>3</sub>；Na<sub>2</sub>CO<sub>3</sub> 是純鹼/蘇打。" },
+                { q: "下列各組物質中，前者屬單質、後者屬化合物的是？", options: ["液氧、硫酸", "金剛石、空氣", "干冰、氯化氫", "二氧化碳、水銀"], answer: 0, explanation: "液氧 O<sub>2</sub> 是單質，硫酸 H<sub>2</sub>SO<sub>4</sub> 是化合物。" },
+                { q: "下列常見原子團中，化合價通常顯 -2 價的是？", options: ["氫氧根 (OH<sup>-</sup>)", "硝酸根 (NO<sub>3</sub><sup>-</sup>)", "硫酸根 (SO<sub>4</sub><sup>2-</sup>)", "銨根 (NH<sub>4</sub><sup>+</sup>)"], answer: 2, explanation: "硫酸根化合價為 -2 價。" },
+                { q: "下列關於溶液溶解性的敘述，正確的是？", options: ["所有的硝酸鹽都溶於水", "所有的碳酸鹽都溶於水", "氯化銀易溶於水", "硫酸鋇溶於水"], answer: 0, explanation: "硝酸鹽全溶於水；碳酸鹽多數不溶；AgCl 與 BaSO<sub>4</sub> 是沉澱。" },
+                { q: "單質中元素的化合價規定為多少？", options: ["+1", "0", "-1", "視情況而定"], answer: 1, explanation: "在單質中，元素的化合價規定為 0。" },
+                { q: "下列屬於酸的是哪一個？", options: ["NaCl", "NaOH", "H<sub>2</sub>SO<sub>4</sub>", "CaO"], answer: 2, explanation: "電離出的陽離子全部是氫離子的化合物是酸，如硫酸。" },
+                { q: "下列物質中屬於鹽的是？", options: ["HCl", "KOH", "NaNO<sub>3</sub>", "SO<sub>2</sub>"], answer: 2, explanation: "NaNO<sub>3</sub> 由金屬離子與酸根離子構成，屬於鹽。" },
+                { q: "下列哪種物質常用於製造乾燥劑（生石灰）？", options: ["CaCO<sub>3</sub>", "CaO", "Ca(OH)<sub>2</sub>", "CaCl<sub>2</sub>"], answer: 1, explanation: "生石灰（CaO）能與水反應，常用作乾燥劑。" },
+                { q: "下列屬於鹼類的是？", options: ["CuSO<sub>4</sub>", "NaOH", "H<sub>3</sub>PO<sub>4</sub>", "CO<sub>2</sub>"], answer: 1, explanation: "電離出的陰離子全部是氫氧根離子的化合物是鹼，如氫氧化鈉。" },
+                { q: "下列物質不溶於水的是？", options: ["NaCl", "KNO<sub>3</sub>", "BaSO<sub>4</sub>", "HCl"], answer: 2, explanation: "硫酸鋇（BaSO<sub>4</sub>）是強酸的硫酸鹽中少數不溶於水的白色沉澱。" },
+                { q: "下列金屬中，常溫下呈液態的是？", options: ["鐵", "汞", "銅", "鋁"], answer: 1, explanation: "汞（Hg，俗稱水銀）是常溫下唯一的液態金屬。" },
+                { q: "下列氣體中，具有刺激性氣味的是？", options: ["O<sub>2</sub>", "CO<sub>2</sub>", "SO<sub>2</sub>", "N<sub>2</sub>"], answer: 2, explanation: "二氧化硫（SO<sub>2</sub>）是具有強烈刺激性氣味的有毒氣體。" },
+                { q: "下列關於水（H<sub>2</sub>O）的組成說法正確的是？", options: ["水由氫氣和氧氣組成", "水由氫元素和氧元素組成", "水分子中含有氫氣分子", "水由兩個氫原子和一个氧原子直接構成"], answer: 1, explanation: "水是純淨物，由氫、氧兩種元素組成（巨觀角度）。" },
+                { q: "下列化學式書寫正確的是？", options: ["氧化鎂 MgO<sub>2</sub>", "氯化鐵 FeCl<sub>2</sub>", "硫酸銅 CuSO<sub>4</sub>", "氫氧化鋁 Al(OH)<sub>2</sub>"], answer: 2, explanation: "硫酸銅化學式為 CuSO<sub>4</sub>。氯化鐵應為 FeCl<sub>3</sub>；氫氧化鋁為 Al(OH)<sub>3</sub>。" },
+                { q: "下列物質屬於純淨物的是？", options: ["礦泉水", "碘酒", "蒸餾水", "空氣"], answer: 2, explanation: "蒸餾水只含有水分子，是純淨物。" },
+                { q: "下列物質屬於混合物的是？", options: ["冰水共存物", "高錳酸鉀", "鹽酸", "氧化銅"], answer: 2, explanation: "鹽酸是氯化氫氣體溶於水形成的混合物。" },
+                { q: "磷酸根離子（PO<sub>4</sub><sup>3-</sup>）的化合價通常是？", options: ["-1", "-2", "-3", "+3"], answer: 2, explanation: "磷酸根離子帶三個單位負電荷，化合價為 -3 價。" },
+                { q: "鐵在氧氣中燃燒的實驗現象是？", options: ["發出明亮藍紫色火焰", "劇烈燃燒，火星四射，生成黑色固體", "產生濃厚白煙", "安靜燃燒，生成黃色粉末"], answer: 1, explanation: "鐵絲在氧氣中劇烈燃燒，火星四射，生成四氧化三鐵黑色的固體。" },
+                { q: "下列物質在水中溶解度最大的是？", options: ["CaCO<sub>3</sub>", "AgCl", "NaCl", "BaSO<sub>4</sub>"], answer: 2, explanation: "氯化鈉（食鹽）易溶於水。" },
+                { q: "下列物質中含有氧分子的是？", options: ["水", "過氧化氫", "空氣", "二氧化碳"], answer: 2, explanation: "空氣是混合物，其中包含氧氣分子（O<sub>2</sub>）。" },
+                { q: "下列有關原子結構的說法，正確的是？", options: ["原子核由質子和電子構成", "原子質子數等於核外電子數", "所有原子的原子核內都有中子", "原子中帶電微粒只有質子"], answer: 1, explanation: "原子中質子數等於核外電子數，故原子整體不顯電性。" },
+                { q: "下列屬於非金屬元素的是？", options: ["Na", "Fe", "S", "Al"], answer: 2, explanation: "S 代表硫，是典型的非金屬元素。" },
+                { q: "下列實驗操作正確的是？", options: ["用手直接拿取化學藥品", "將試管口朝向自己或他人加熱", "用藥匙取用粉末狀固體", "用燃著的酒精燈去點燃另一隻酒精燈"], answer: 2, explanation: "取用粉末狀藥品應用藥匙或紙槽。" },
+                { q: "下列關於燃燒的說法，正確的是？", options: ["燃燒一定發光發熱", "燃燒一定有氧氣參加", "爆炸一定是化學爆炸", "溫度達到可燃物著火點就一定能燃燒"], answer: 0, explanation: "燃燒是劇烈的發光發熱的化學反應。" },
+                { q: "下列物質露置在空氣中，質量會減少的是？", options: ["濃硫酸", "氫氧化鈉固體", "濃鹽酸", "氯化鈉"], answer: 2, explanation: "濃鹽酸具有揮發性，揮發出 HCl 氣體導致質量減少（濃硫酸與 NaOH 會吸水潮解增重）。" },
+                { q: "下列屬於物理變化的是？", options: ["食物腐敗", "酒精揮發", "鐵釘生鏽", "光合作用"], answer: 1, explanation: "酒精揮發只是狀態改變，沒有生成新物質，屬於物理變化。" },
+                { q: "下列屬於化學變化的是？", options: ["幹冰昇華", "燈泡通電發光", "石蠟熔化", "煤的氣化"], answer: 3, explanation: "煤的氣化生成了可燃性氣體，屬於化學變化。" },
+                { q: "下列各物質按酸、鹼、鹽順序排列的是？", options: ["HCl、Na<sub>2</sub>CO<sub>3</sub>、NaOH", "H<sub>2</sub>SO<sub>4</sub>、NaOH、NaCl", "NaOH、HCl、NaCl", "HAc、NaCl、CaO"], answer: 1, explanation: "硫酸是酸，氫氧化鈉是鹼，氯化鈉是鹽。" },
+                { q: "下列離子符號書寫正確的是？", options: ["鈉離子 Na<sup>+1</sup>", "鎂離子 Mg<sup>+2</sup>", "鋁離子 Al<sup>3+</sup>", "氯離子 Cl<sup>-1</sup>"], answer: 2, explanation: "離子電荷書寫時數字在前、正負號在後，帶 1 個單位電荷時數字「1」省略，故鋁離子為 Al<sup>3+</sup>。" },
+                { q: "地殼中含量最多的非金屬元素是？", options: ["矽", "氧", "鋁", "鐵"], answer: 1, explanation: "地殼中元素含量由多到少前兩位是氧、矽，故最多非金屬是氧。" },
+                { q: "下列各組元素符號中，全都是大寫字母的是？", options: ["Cu", "Mg", "C", "Zn"], answer: 2, explanation: "碳的符號是 C（單個大寫字母）。" },
+                { q: "下列常見金屬中，密度最小的是？", options: ["鋁", "鐵", "鋰", "銅"], answer: 2, explanation: "鋰是已知密度最小的金屬。" },
+                { q: "下列溶液中，呈藍色的是？", options: ["氯化鈉溶液", "硫酸銅溶液", "氫氧化鈉溶液", "稀硫酸"], answer: 1, explanation: "含有銅離子（Cu<sup>2+</sup>）的水溶液通常呈藍色。" },
+                { q: "下列儀器中，可用作化學反應容器且能直接加熱的是？", options: ["燒杯", "量筒", "試管", "容量瓶"], answer: 2, explanation: "試管可以加熱；燒杯加熱需墊石棉網；量筒和容量瓶不能加熱。" },
+                { q: "下列物質中含有自由移動離子的是？", options: ["固體氯化鈉", "液態氯化氫", "氯化鈉水溶液", "蔗糖水"], answer: 2, explanation: "氯化鈉水溶液中電離出了自由移動的 Na<sup>+</sup> 和 Cl<sup>-</sup>。" },
+                { q: "下列關於分子和原子的敘述，錯誤的是？", options: ["分子和原子都在不斷運動", "分子是由原子構成的", "化學反應中分子可分，原子不可分", "原子是化學變化中的最小微粒，分子大於原子"], answer: 3, explanation: "分子和原子的體積大小不能絕對比較，有些原子比分子還大。" },
+                { q: "下列化學用語書寫正確的是？", options: ["2個氫原子：H<sub>2</sub>", "3個水分子：3H<sub>2</sub>O", "氧化鋁：AlO", "鎂離子：Mg<sup>+2</sup>"], answer: 1, explanation: "3個水分子表示為 3H<sub>2</sub>O。" },
+                { q: "下列物質中，不能與稀鹽酸反應產生氣體的是？", options: ["鋅粒", "碳酸鈣", "銅片", "鎂條"], answer: 2, explanation: "銅在金屬活動性順序表中排在氫後面，不與稀鹽酸反應。" },
+                { q: "下列關於催化劑的說法中，正確的是？", options: ["催化劑只能加快化學反應速率", "化學反應前後催化劑的質量和化學性質不變", "催化劑能增加生成物的質量", "沒有催化劑化學反應就無法進行"], answer: 1, explanation: "催化劑在反應前後質量和化學性質保持不變。" },
+                { q: "下列屬於碳酸鹽的是？", options: ["KNO<sub>3</sub>", "Na<sub>2</sub>SO<sub>4</sub>", "CaCO<sub>3</sub>", "BaCl<sub>2</sub>"], answer: 2, explanation: "碳酸鈣（CaCO<sub>3</sub>）含有碳酸根，屬於碳酸鹽。" },
+                { q: "下列物質加熱時會分解產生氧氣的是？", options: ["氯酸鉀", "碳酸鈣", "氯化鈉", "堿式碳酸銅"], answer: 0, explanation: "氯酸鉀在二氧化錳催化加熱下分解產生氧氣（高錳酸鉀亦可）。" },
+                { q: "下列金屬活動性最強的是？", options: ["銅", "鐵", "鋅", "鉀"], answer: 3, explanation: "在金屬活動性順序表中，鉀（K）是最活潑的金屬之一。" },
+                { q: "下列關於溶液的說法，正確的是？", options: ["溶液一定是無色透明的", "均勻穩定的液體一定是溶液", "溶液中只有一種溶質", "溶液是由溶質和溶劑組成的"], answer: 3, explanation: "溶液是均勻穩定的混合物，由溶質和溶劑組成。" },
+                { q: "下列化學實驗操作中，「先……後……」的原則正確的是？", options: ["制取氣體時，先裝藥品，後檢查氣體發生裝置的氣密性", "點燃可燃性氣體前，先點燃，後檢驗氣體純度", "排水法收集滿氣體後，先熄滅酒精燈，後移開導管", "給試管加熱時，先預熱，後集中加熱"], answer: 3, explanation: "給試管加熱必須先預熱，防止試管受熱不均破裂。" },
+                { q: "下列物質中，屬於氮肥的是？", options: ["K<sub>2</sub>SO<sub>4</sub>", "Ca(H<sub>2</sub>PO<sub>4</sub>)<sub>2</sub>", "CO(NH<sub>2</sub>)<sub>2</sub>", "KCl"], answer: 2, explanation: "尿素 CO(NH<sub>2</sub>)<sub>2</sub> 含有氮元素，屬於氮肥。" }
+            ],
+            hard: [
+                { q: "下列物質中，屬於強電解質的是哪一個？", options: ["CH<sub>3</sub>COOH (醋酸)", "H<sub>2</sub>O (水)", "NaCl (氯化鈉)", "NH<sub>3</sub>·H<sub>2</sub>O"], answer: 2, explanation: "氯化鈉在水溶液中完全電離，屬於強電解質。" },
+                { q: "在水溶液中，下列哪一組離子可以大量共存？", options: ["H<sup>+</sup> 與 CO<sub>3</sub><sup>2-</sup>", "Ba<sup>2+</sup> 與 SO<sub>4</sub><sup>2-</sup>", "Na<sup>+</sup>、Cl<sup>-</sup> 與 K<sup>+</sup>", "Ag<sup>+</sup> 與 Cl<sup>-</sup>"], answer: 2, explanation: "Na<sup>+</sup>、Cl<sup>-</sup>、K<sup>+</sup> 不反應，能大量共存。" },
+                { q: "下列關於氧化還原反應的敘述，正確的是？", options: ["物質失去電子的過程叫還原", "化合價降低的過程叫氧化", "化合價升高的總數等於降低的總數", "氧化劑本身被氧化"], answer: 2, explanation: "氧化還原反應中得失電子守恆，化合價升降總數相等。" },
+                { q: "下列離子方程式書寫正確的是？", options: ["碳酸鈣與鹽酸：CO<sub>3</sub><sup>2-</sup> + 2H<sup>+</sup> = H<sub>2</sub>O + CO<sub>2</sub>↑", "稀硫酸與氫氧化鈉：H<sup>+</sup> + OH<sup>-</sup> = H<sub>2</sub>O", "鐵與硫酸銅：2Fe + 3Cu<sup>2+</sup> = 2Fe<sup>3+</sup> + 3Cu", "氫氧化鎂溶於鹽酸：OH<sup>-</sup> + H<sup>+</sup> = H<sub>2</sub>O"], answer: 1, explanation: "強酸強鹼中和簡化為 H<sup>+</sup> + OH<sup>-</sup> = H<sub>2</sub>O。CaCO<sub>3</sub> 與 Mg(OH)<sub>2</sub> 為難溶物不能拆。" },
+                { q: "下列物質分類正確的一組是（酸、鹼、鹽）：", options: ["硫酸、純鹼、食鹽", "鹽酸、燒鹼、碳酸鈣", "醋酸、酒精、硫酸銅", "二氧化碳、氫氧化鉀、氯化鈉"], answer: 1, explanation: "鹽酸是酸，燒鹼是鹼，碳酸鈣是鹽。" },
+                { q: "下列關於膠體的敘述，正確的是？", options: ["膠體是一種純淨物", "膠體粒子直徑大於 100 nm", "製豆腐利用了膠體聚沉原理", "膠體不能發生丁達爾效應"], answer: 2, explanation: "加入電解質（石膏）使豆漿膠體聚沉制成豆腐。" },
+                { q: "下列反應中，屬於氧化還原反應的是？", options: ["CaCO<sub>3</sub> \xrightarrow{\Delta} CaO + CO_2↑", "NaOH + HCl = NaCl + H_2O", "Zn + H<sub>2</sub>SO<sub>4</sub> = ZnSO<sub>4</sub> + H_2↑", "CaO + H_2O = Ca(OH)_2"], answer: 2, explanation: "Zn 元素化合價由 0 升到 +2，發生了化合價升降。" },
+                { q: "下列各組離子在無色透明水溶液中能大量共存的是？", options: ["Cu<sup>2+</sup>、Na<sup>+</sup>、Cl<sup>-</sup>、SO<sub>4</sub><sup>2-</sup>", "K<sup>+</sup>、Na<sup>+</sup>、NO<sub>3</sub><sup>-</sup>、Cl<sup>-</sup>", "Fe<sup>3+</sup>、NH<sub>4</sub><sup>+</sup>、SCN<sup>-</sup>、Cl<sup>-</sup>", "H<sup>+</sup>、K<sup>+</sup>、HCO<sub>3</sub><sup>-</sup>、SO<sub>4</sub><sup>2-</sup>"], answer: 1, explanation: "K<sup>+</sup>、Na<sup>+</sup>、NO<sub>3</sub><sup>-</sup>、Cl<sup>-</sup> 無色且互不反應。" },
+                { q: "下列關於電解質電離的說法中，正確的是？", options: ["化合物熔化均能電離", "導電強的溶液其電解質濃度一定大", "強電解質完全電離，弱電解質部分電離", "二氧化碳溶於水導電，故二氧化碳是電解質"], answer: 2, explanation: "強電解質完全電離，弱電解質部分電離。" },
+                { q: "下列電離方程式書寫正確的是？", options: ["H<sub>2</sub>SO<sub>4</sub> = 2H<sup>+</sup> + SO<sub>4</sub><sup>2-</sup>", "Ca(OH)<sub>2</sub> = Ca<sup>2+</sup> + (OH)<sub>2</sub><sup>2-</sup>", "NaNO<sub>3</sub> = Na<sup>+</sup> + N<sup>5+</sup> + 3O<sup>2-</sup>", "AlCl<sub>3</sub> = Al<sup>3+</sup> + Cl<sub>3</sub><sup>-</sup>"], answer: 0, explanation: "硫酸完全電離出 2 個氫離子與 1 個硫酸根。" },
+                { q: "膠體與其他分散系的本質區別是？", options: ["分散質粒子直徑大小 (1~100 nm)", "是否有丁達爾效應", "是否均勻穩定", "是否能透過濾紙"], answer: 0, explanation: "分散質粒子直徑大小是膠體與溶液、濁液的本質區別。" },
+                { q: "下列現象中，與膠體性質無關的是？", options: ["晨霧中的光束", "江河入海口處形成沙洲", "用活性淨水劑淨化飲用水", "氯化鐵溶液中加入氫氧化鈉產生紅褐色沉澱"], answer: 3, explanation: "產生紅褐色沉澱是復分解沉澱反應，與膠體性質無關（但 Fe(OH)<sub>3</sub> 膠體聚沉會產生沉澱，不過此選項為直接混合反應）。" },
+                { q: "下列關於分散系的說法，不正確的是？", options: ["溶液、膠體、濁液都屬於分散系", "分散系包括分散質和分散劑", "膠體屬於混合物", "膠體的分散質粒子不能透過半透膜"], answer: 3, explanation: "膠體的分散質粒子能透過濾紙，但不能透過半透膜。" },
+                { q: "下列物質中，既能導電又屬於強電解質的是？", options: ["硫酸銅晶體", "熔融的氯化鈉", "無水乙醇", "鹽酸"], answer: 1, explanation: "熔融的氯化鈉含有自由移動離子，且自身是化合物電解質，故能導電且為強電解質（鹽酸是混合物）。" },
+                { q: "下列離子方程式中，正確的是？", options: ["氧化鐵與鹽酸反應：Fe<sub>2</sub>O<sub>3</sub> + 6H<sup>+</sup> = 2Fe<sup>3+</sup> + 3H<sub>2</sub>O", "碳酸鈣與醋酸反應：CO<sub>3</sub><sup>2-</sup> + 2H<sup>+</sup> = H<sub>2</sub>O + CO<sub>2</sub>↑", "氫氧化鈉與硫酸銅反應：Cu<sup>2+</sup> + 2OH<sup>-</sup> = Cu(OH)<sub>2</sub>↓", "氯氣通入水中：Cl<sub>2</sub> + H<sub>2</sub>O = 2H<sup>+</sup> + Cl<sup>-</sup> + ClO<sup>-</sup>"], answer: 0, explanation: "氧化鐵為難溶氧化物需寫化學式；弱酸醋酸與次氯酸不可拆。" },
+                { q: "下列各組物質中，電解質在水溶液中的電離方程式正確的是？", options: ["NaHSO<sub>4</sub> = Na<sup>+</sup> + H<sup>+</sup> + SO<sub>4</sub><sup>2-</sup>", "NaHCO<sub>3</sub> = Na<sup>+</sup> + C<sup>4+</sup> + 3O<sup>2-</sup>", "CH<sub>3</sub>COOH = CH<sub>3</sub><sup>+</sup> + COO<sup>-</sup> + H<sup>+</sup>", "Ba(OH)<sub>2</sub> = Ba<sup>2+</sup> + OH<sub>2</sub><sup>2-</sup>"], answer: 0, explanation: "硫酸氫鈉在水溶液中完全電離出鈉離子、氫離子和硫酸根離子。" },
+                { q: "下列物質中，屬於非電解質的是？", options: ["蔗糖", "氯化氫", "硫酸", "氫氧化鈉"], answer: 0, explanation: "蔗糖在水溶液和熔融狀態下均不導電，屬於非電解質。" },
+                { q: "下列各組離子能在強酸性溶液中大量共存的是？", options: ["Na<sup>+</sup>、K<sup>+</sup>、OH<sup>-</sup>、SO<sub>4</sub><sup>2-</sup>", "Mg<sup>2+</sup>、Cl<sup>-</sup>、NO<sub>3</sub><sup>-</sup>、Na<sup>+</sup>", "Ba<sup>2+</sup>、Na<sup>+</sup>、CO<sub>3</sub><sup>2-</sup>、Cl<sup>-</sup>", "Fe<sup>2+</sup>、H<sup>+</sup>、NO<sub>3</sub><sup>-</sup>、SO<sub>4</sub><sup>2-</sup>"], answer: 1, explanation: "酸性溶液中不能大量存在 OH<sup>-</sup>、CO<sub>3</sub><sup>2-</sup>；Fe<sup>2+</sup>、H<sup>+</sup>、NO<sub>3</sub><sup>-</sup> 會發生氧化還原反應。故 Mg<sup>2+</sup>、Cl<sup>-</sup>、NO<sub>3</sub><sup>-</sup>、Na<sup>+</sup> 可共存。" },
+                { q: "下列反應中不屬於離子反應的是？", options: ["硫酸鈉與氯化鋇混合", "氫氣還原氧化銅", "鹽酸滴入碳酸鈉溶液中", "氨氣通入鹽酸中"], answer: 1, explanation: "氫氣還原氧化銅是氣固高溫加熱反應，不屬於離子反應。" },
+                { q: "下列離子方程式適用於所有強酸與強鹼中和反應的是？", options: ["CH<sub>3</sub>COOH + OH<sup>-</sup> = CH<sub>3</sub>COO<sup>-</sup> + H<sub>2</sub>O", "2H<sup>+</sup> + Ba<sup>2+</sup> + 2OH<sup>-</sup> + SO<sub>4</sub><sup>2-</sup> = BaSO<sub>4</sub>↓ + 2H<sub>2</sub>O", "H<sup>+</sup> + OH<sup>-</sup> = H<sub>2</sub>O", "Mg<sup>2+</sup> + 2OH<sup>-</sup> = Mg(OH)<sub>2</sub>↓"], answer: 2, explanation: "強酸強鹼稀溶液中和反應的實質皆為 H<sup>+</sup> + OH<sup>-</sup> = H<sub>2</sub>O。" },
+                { q: "下列關於丁達爾效應的說法，正確的是？", options: ["丁達爾效應是溶液的特性", "丁達爾效應是由於分散質粒子對光線散射造成的", "光束通過氯化鈉溶液時會產生丁達爾效應", "濁液也能產生明顯的丁達爾效應"], answer: 1, explanation: "丁達爾效應是膠體的特有光學性質，因膠體粒子對光線散射而形成。" },
+                { q: "下列關於布朗運動的說法，正確的是？", options: ["布朗運動就是膠體粒子的熱運動", "布朗運動是分子受到周圍分子撞擊不平衡引起的", "溫度越高，布朗運動越緩慢", "溶液中的溶質離子也能發生明顯布朗運動"], answer: 1, explanation: "布朗運動是由分散劑分子從不同方向撞擊分散質粒子引起的無規則運動。" },
+                { q: "下列物質中，不能導電的是？", options: ["氯化鈉溶液", "銅絲", "無水氯化氫氣體", "熔融硝酸鉀"], answer: 2, explanation: "無水氯化氫分子不電離，無自由移動離子，不導電。" },
+                { q: "下列各組離子能在溶液中大量共存，且溶液為無色透明的是？", options: ["MnO<sub>4</sub><sup>-</sup>、K<sup>+</sup>、Na<sup>+</sup>、SO<sub>4</sub><sup>2-</sup>", "Fe<sup>3+</sup>、Cl<sup>-</sup>、Na<sup>+</sup>、NO<sub>3</sub><sup>-</sup>", "Mg<sup>2+</sup>、Cl<sup>-</sup>、SO<sub>4</sub><sup>2-</sup>、Na<sup>+</sup>", "Cu<sup>2+</sup>、OH<sup>-</sup>、SO<sub>4</sub><sup>2-</sup>、Na<sup>+</sup>"], answer: 2, explanation: "MnO<sub>4</sub><sup>-</sup> 紫色、Fe<sup>3+</sup> 黃色、Cu<sup>2+</sup> 藍色；Mg<sup>2+</sup>、Cl<sup>-</sup>、SO<sub>4</sub><sup>2-</sup>、Na<sup>+</sup> 無色且互不反應。" },
+                { q: "下列電解質分類正確的是？", options: ["強電解質：HCl、BaSO<sub>4</sub>、NaOH", "弱電解質：CH<sub>3</sub>COOH、H<sub>2</sub>O、NH<sub>3</sub>·H<sub>2</sub>O", "非電解質：SO<sub>2</sub>、酒精、CaCO<sub>3</sub>", "強電解質：HNO<sub>3</sub>、Ba(OH)<sub>2</sub>、蔗糖"], answer: 1, explanation: "碳酸鈣雖難溶但溶于水的部分完全電離，屬於強電解質；蔗糖是非電解質；BaSO<sub>4</sub> 難溶但也是強電解質。醋酸、水、一水合氨是弱電解質。" },
+                { q: "下列反應對應的離子方程式正確的是？", options: ["大理石與醋酸反應：CO<sub>3</sub><sup>2-</sup> + 2H<sup>+</sup> = H<sub>2</sub>O + CO<sub>2</sub>↑", "金屬鋁溶於氫氧化鈉溶液：2Al + 2OH<sup>-</sup> + 2H<sub>2</sub>O = 2AlO<sub>2</sub><sup>-</sup> + 3H<sub>2</sub>↑", "氯氣與水反應：Cl<sub>2</sub> + H<sub>2</sub>O = 2H<sup>+</sup> + Cl<sup>-</sup> + ClO<sup>-</sup>", "鐵與稀鹽酸反應：2Fe + 6H<sup>+</sup> = 2Fe<sup>3+</sup> + 3H<sub>2</sub>↑"], answer: 2, explanation: "此題考察高一氯氣水反應（註：次氯酸弱酸不可拆），且鐵與鹽酸反應生成亞鐵離子（Fe<sup>2+</sup>）。" },
+                { q: "下列物質中，屬於酸性氧化物但常溫下不與水反應的是？", options: ["CO<sub>2</sub>", "SO<sub>3</sub>", "SiO<sub>2</sub>", "P<sub>2</sub>O<sub>5</sub>"], answer: 2, explanation: "二氧化矽（SiO<sub>2</sub>）是酸性氧化物，但不與水反應。" },
+                { q: "下列說法中正確的是？", options: ["含有氧元素的化合物一定是氧化物", "混合物一定由多種分子組成", "電解質溶液能導電是由於溶液中有自由移動的離子", "能電離出氫離子的化合物一定是酸"], answer: 2, explanation: "電解質溶液導電實質是自由移動的離子定向移動。" },
+                { q: "下列離子方程式改寫為化學方程式正確的是？", options: ["Ba<sup>2+</sup> + SO<sub>4</sub><sup>2-</sup> = BaSO<sub>4</sub>↓  $\rightarrow$  BaCl<sub>2</sub> + Na<sub>2</sub>SO<sub>4</sub> = BaSO<sub>4</sub>↓ + 2NaCl", "H<sup>+</sup> + OH<sup>-</sup> = H<sub>2</sub>O  $\rightarrow$  2HCl + Ba(OH)<sub>2</sub> = BaCl<sub>2</sub> + 2H<sub>2</sub>O", "CO<sub>3</sub><sup>2-</sup> + 2H<sup>+</sup> = H<sub>2</sub>O + CO<sub>2</sub>↑  $\rightarrow$  CaCO<sub>3</sub> + 2HCl = CaCl<sub>2</sub> + H<sub>2</sub>O + CO<sub>2</sub>↑", "Mg<sup>2+</sup> + 2OH<sup>-</sup> = Mg(OH)<sub>2</sub>↓  $\rightarrow$  MgCl<sub>2</sub> + 2NaOH = Mg(OH)<sub>2</sub>↓ + 2NaCl"], answer: 0, explanation: "離子方程式能正確對應其實際化學反應及可溶性鹽搭配。" },
+                { q: "下列各組反應中，不能用同一離子方程式表示的是？", options: ["氫氧化鈉與鹽酸；氫氧化鉀與硝酸", "碳酸鈣與鹽酸；碳酸鈉與硝酸", "硫酸與氫氧化鋇；硫酸銅與氫氧化鋇", "醋酸與氫氧化鈉；鹽酸與氨水"], answer: 3, explanation: "醋酸是弱酸不能拆，鹽酸是強酸可拆，故不能用同一離子方程式表示。" },
+                { q: "下列物質露置在空氣中，因發生氧化還原反應而變質的是？", options: ["濃硫酸", "生石灰", "硫酸亞鐵溶液", "氯化鈉"], answer: 2, explanation: "硫酸亞鐵溶液（Fe<sup>2+</sup>）易被空氣中的氧氣氧化為鐵離子（Fe<sup>3+</sup>）。" },
+                { q: "下列離子在給定條件下能大量共存的是？", options: ["pH = 1 的溶液中：Fe<sup>2+</sup>、Mg<sup>2+</sup>、MnO<sub>4</sub><sup>-</sup>、Cl<sup>-</sup>", "含有大量 Ba<sup>2+</sup> 的溶液中：Na<sup>+</sup>、K<sup>+</sup>、SO<sub>4</sub><sup>2-</sup>、Cl<sup>-</sup>", "含有大量 OH<sup>-</sup> 的溶液中：Na<sup>+</sup>、Cu<sup>2+</sup>、Cl<sup>-</sup>、NO<sub>3</sub><sup>-</sup>", "水的離子積因溫度升高而變大的溶液中：Na<sup>+</sup>、K<sup>+</sup>、Cl<sup>-</sup>、HCO<sub>3</sub><sup>-</sup>"], answer: 3, explanation: "pH=1 含 H<sup>+</sup> 與 MnO<sub>4</sub><sup>-</sup> 會發生氧化還原；Ba<sup>2+</sup> 與 SO<sub>4</sub><sup>2-</sup> 沉澱；Cu<sup>2+</sup> 與 OH<sup>-</sup> 沉澱。HCO<sub>3</sub><sup>-</sup> 在鹼性中不共存，但在中性或弱鹼/升溫水溶液中可穩定。" },
+                { q: "下列關於離子反應不正確說法是？", options: ["離子反應總是有沉澱、氣體或水生成", "離子反應可使某些離子濃度降低", "離子方程式只需遵循質量守恆", "複分解型離子反應實質是向離子濃度減小的方向進行"], answer: 2, explanation: "離子方程式書寫必須同時遵循質量守恆與電荷守恆。" },
+                { q: "下列離子方程式書寫正確且符合事實的是？", options: ["向碳酸氫鈉溶液中滴加稀鹽酸：HCO<sub>3</sub><sup>-</sup> + H<sup>+</sup> = H<sub>2</sub>O + CO<sub>2</sub>↑", "氯氣與水反應：Cl<sub>2</sub> + H<sub>2</sub>O = 2H<sup>+</sup> + Cl<sup>-</sup> + ClO<sup>-</sup>", "鐵粉加入三氯化鐵溶液中：Fe + Fe<sup>3+</sup> = 2Fe<sup>2+</sup>", "碳酸鈣溶於醋酸中：CO<sub>3</sub><sup>2-</sup> + 2CH<sub>3</sub>COOH = Ca<sup>2+</sup> + 2CH<sub>3</sub>COO<sup>-</sup> + H<sub>2</sub>O + CO<sub>2</sub>↑"], answer: 0, explanation: "碳酸氫根與氫離子反應生成水和二氧化碳。" },
+                { q: "下列各組微粒在指定溶液中一定能大量共存的是？", options: ["使甲基橙呈紅色的溶液中：I<sup>-</sup>、Cl<sup>-</sup>、NO<sub>3</sub><sup>-</sup>、Na<sup>+</sup>", "常溫下由水电離出的 c(H<sup>+</sup>) = 10<sup>-12</sup> mol/L 的溶液中：Na<sup>+</sup>、K<sup>+</sup>、Cl<sup>-</sup>、AlO<sub>2</sub><sup>-</sup>", "含有大量 Fe<sup>3+</sup> 的溶液中：SCN<sup>-</sup>、Na<sup>+</sup>、Cl<sup>-</sup>、SO<sub>4</sub><sup>2-</sup>", "與 Al 反應能放出 H<sub>2</sub> 的溶液中：NH<sub>4</sub><sup>+</sup>、Na<sup>+</sup>、CO<sub>3</sub><sup>2-</sup>、Cl<sup>-</sup>"], answer: 1, explanation: "甲基橙呈紅色說明是強酸性，H<sup>+</sup>、I<sup>-</sup>、NO<sub>3</sub><sup>-</sup> 會發生氧化還原；Fe<sup>3+</sup> 與 SCN<sup>-</sup> 顯紅色錯合物；放氫氣可能是酸也可能是強鹼，強鹼中 NH<sub>4</sub><sup>+</sup> 與 CO<sub>3</sub><sup>2-</sup> 不能共存。水电離受抑制說明是酸或鹼，AlO<sub>2</sub><sup>-</sup> 在強鹼中能大量共存。" },
+                { q: "下列有關電解質的敘述正確的是？", options: ["導電能力強的溶液其電解質一定是強電解質", "強電解質溶液的導電能力一定比弱電解質溶液強", "化合物不一定都是電解質，電解質一定都是化合物", "非電解質在水溶液中和熔融狀態下均不能導電"], answer: 3, explanation: "非電解質在水溶液及熔融狀態下均不導電。" },
+                { q: "下列離子方程式能正確表示其反應的是？", options: ["用小蘇打治療胃酸過多：HCO<sub>3</sub><sup>-</sup> + H<sup>+</sup> = H<sub>2</sub>O + CO<sub>2</sub>↑", "向氯化鋁溶液中加入過量氨水：Al<sup>3+</sup> + 4OH<sup>-</sup> = AlO<sub>2</sub><sup>-</sup> + 2H<sub>2</sub>O", "向硫酸亞鐵溶液中通入氯氣：2Fe<sup>2+</sup> + Cl<sub>2</sub> = 2Fe<sup>3+</sup> + 2Cl<sup>-</sup>", "向碳酸鈉溶液中加入過量醋酸：CO<sub>3</sub><sup>2-</sup> + 2H<sup>+</sup> = H<sub>2</sub>O + CO<sub>2</sub>↑"], answer: 2, explanation: "氯氣能將亞鐵離子氧化為鐵離子。氨水是弱鹼不能溶解氫氧化鋁沉澱；醋酸弱酸不能拆成 H<sup>+</sup>。" },
+                { q: "下列物質分類的組合中，完全正確的是？", options: ["強電解質：明礬、冰醋酸、硫酸", "弱電解質：一水合氨、次氯酸、水", "非電解質：乾冰、三氧化硫、乙醇", "鹽：碳酸氫鈉、膽礬、過氧化鈉"], answer: 1, explanation: "冰醋酸是純醋酸屬於弱電解質；二氧化硫、三氧化硫是電解質；過氧化鈉是過氧化物（離子化合物屬鹽或特殊化合物）。一水合氨、次氯酸、水皆為弱電解質。" },
+                { q: "下列反應的離子方程式正確的是？", options: ["鎂條插入硫酸銅溶液中：Mg + Cu<sup>2+</sup> = Mg<sup>2+</sup> + Cu", "氧化鎂與稀硫酸反應：O<sup>2-</sup> + 2H<sup>+</sup> = H<sub>2</sub>O", "碳酸鈣與稀硝酸反應：CO<sub>3</sub><sup>2-</sup> + 2H<sup>+</sup> = H<sub>2</sub>O + CO<sub>2</sub>↑", "硫酸氫鈉溶液與氫氧化鈉溶液混合：H<sup>+</sup> + OH<sup>-</sup> = H<sub>2</sub>O"], answer: 0, explanation: "鎂比銅活潑，置換出銅離子。氧化鎂為難溶物需寫化學式；硫酸氫鈉電離出的 H<sup>+</sup> 與 OH<sup>-</sup> 反應實質為 H<sup>+</sup> + OH<sup>-</sup> = H<sub>2</sub>O（但完全離子方程式應體現 HSO<sub>4</sub><sup>-</sup> + OH<sup>-</sup> = SO<sub>4</sub><sup>2-</sup> + H<sub>2</sub>O）。" },
+                { q: "下列關於分散系的說法中，正確的是？", options: ["分散質粒子直徑小於 1 nm 的分散系屬膠體", "光束通過膠體時可見一條光亮的通路", "濁液的分散質粒子能透過濾紙", "溶液中分散質粒子帶電荷"], answer: 1, explanation: "光束通過膠體能產生丁達爾效應（光亮的通路）。" },
+                { q: "下列各組離子在溶液中能大量共存，且加入鐵粉能放出氫氣的是？", options: ["Mg<sup>2+</sup>、Cl<sup>-</sup>、SO<sub>4</sub><sup>2-</sup>、Na<sup>+</sup>", "H<sup>+</sup>、Ba<sup>2+</sup>、NO<sub>3</sub><sup>-</sup>、Cl<sup>-</sup>", "K<sup>+</sup>、Na<sup>+</sup>、CO<sub>3</sub><sup>2-</sup>、NO<sub>3</sub><sup>-</sup>", "H<sup>+</sup>、Cl<sup>-</sup>、Na<sup>+</sup>、SO<sub>4</sub><sup>2-</sup>"], answer: 3, explanation: "加鐵粉能放出氫氣說明溶液呈強酸性（含有大量 H<sup>+</sup>），選項 3 中 H<sup>+</sup>、Cl<sup>-</sup>、Na<sup>+</sup>、SO<sub>4</sub><sup>2-</sup> 彼此能大量共存且遇鐵放出氫氣。" },
+                { q: "下列有關電解質的敘述，正確的是？", options: ["純液態的氯化氫能導電", "碳酸鈣水溶液導電性很好，故為強電解質", "氯化鈉在水溶液中和熔融狀態下都能電離出自由移動的離子", "銅能導電，故銅是電解質"], answer: 2, explanation: "氯化鈉在水溶液或熔融狀態下均能電離出自由移動的離子而導電。" },
+                { q: "下列各組離子反應方程式（離子方程式）與事實相符的是？", options: ["碳酸氫鈣溶液中加入過量氫氧化鈉：Ca<sup>2+</sup> + HCO<sub>3</sub><sup>-</sup> + OH<sup>-</sup> = CaCO<sub>3</sub>↓ + H<sub>2</sub>O", "稀硝酸與亞硫酸鈉反應：2H<sup>+</sup> + SO<sub>3</sub><sup>2-</sup> = H<sub>2</sub>O + SO<sub>2</sub>↑", "氯化鐵溶液中加入銅粉：Fe<sup>3+</sup> + Cu = Fe<sup>2+</sup> + Cu<sup>2+</sup>", "少量二氧化碳通入氯化鈣溶液中：CO<sub>2</sub> + H<sub>2</sub>O + Ca<sup>2+</sup> = CaCO<sub>3</sub>↓ + 2H<sup>+</sup>"], answer: 0, explanation: "碳酸氫鈣與過量氫氧化鈉反應生成碳酸鈣沉澱、碳酸鈉與水。硝酸會將亞硫酸根氧化；銅與鐵離子反應需電荷守恆（2Fe<sup>3+</sup> + Cu = 2Fe<sup>2+</sup> + Cu<sup>2+</sup>）；CO<sub>2</sub> 不與 CaCl<sub>2</sub> 反應。" },
+                { q: "下列關於酸雨的說法，正確的是？", options: ["pH < 7 的雨水稱為酸雨", "酸雨主要由二氧化碳溶於水形成", "酸雨主要是由化石燃料燃燒產生的 SO<sub>2</sub> 和 NO<sub>x</sub> 引起的", "酸雨會促使土壤肥力增加"], answer: 2, explanation: "酸雨是 pH < 5.6 的降水，主要由 SO<sub>2</sub> 與氮氧化物引發。" },
+                { q: "下列化學反應中，不屬於氧化還原反應的是？", options: ["2NO + O<sub>2</sub> = 2NO<sub>2</sub>", "Cl<sub>2</sub> + 2NaOH = NaCl + NaClO + H<sub>2</sub>O", "CuSO<sub>4</sub> + 2NaOH = Cu(OH)<sub>2</sub>↓ + Na<sub>2</sub>SO<sub>4</sub>", "2Na + 2H<sub>2</sub>O = 2NaOH + H<sub>2</sub>↑"], answer: 2, explanation: "硫酸銅與氫氧化鈉反應是複分解反應，各元素化合價前後無變化。" },
+                { q: "下列各組物質中，因發生化學反應而能使溴水褪色的是？", options: ["乙烯、二氧化硫、苯", "甲烷、乙烯、氯化氫", "乙烯、二氧化硫、硫酸亞鐵溶液", "苯、四氯化碳、乙烯"], answer: 2, explanation: "乙烯發生加成褪色，二氧化硫與硫酸亞鐵具還原性可使溴水還原褪色。" },
+                { q: "下列關於離子共存的判斷，正確的是？", options: ["能使紫色石蕊試液變紅的溶液中：Fe<sup>3+</sup>、Na<sup>+</sup>、SO<sub>4</sub><sup>2-</sup>、I<sup>-</sup>", "常溫下水的離子積常數 K<sub>w</sub> = 10<sup>-14</sup> 的溶液中：Na<sup>+</sup>、K<sup>+</sup>、Cl<sup>-</sup>、AlO<sub>2</sub><sup>-</sup>", "滴加 KSCN 溶液顯紅色的溶液中：NH<sub>4</sub><sup>+</sup>、K<sup>+</sup>、Cl<sup>-</sup>、NO<sub>3</sub><sup>-</sup>", "含有大量 Fe<sup>2+</sup> 的溶液中：H<sup>+</sup>、NO<sub>3</sub><sup>-</sup>、SO<sub>4</sub><sup>2-</sup>、Cl<sup>-</sup>"], answer: 2, explanation: "石蕊變紅為酸性，H<sup>+</sup>、I<sup>-</sup>、NO<sub>3</sub><sup>-</sup> 氧化還原不共存；H<sup>+</sup>、NO<sub>3</sub><sup>-</sup> 與 Fe<sup>2+</sup> 不共存；遇 KSCN 顯紅色說明含 Fe<sup>3+</sup>，與 NH<sub>4</sub><sup>+</sup>、K<sup>+</sup>、Cl<sup>-</sup>、NO<sub>3</sub><sup>-</sup> 不反應可大量共存。" }
+            ]
+        };
+
+        const encouragements = [
+            "太棒了！化學之星就是你！",
+            "反應完美，思維敏捷！",
+            "觀點精準，完全命中！",
+            "實驗大師，再接再厲！",
+            "化學原理掌握得爐火純青！"
+        ];
+
+        let currentScreen = 'screen-home';
+        let playerName = '';
+        let gameDifficulty = 'easy';
+        let activeQuestions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let wrongQuestions = [];
+        let answeredCurrent = false;
+        let timerInterval = null;
+        let timeLeft = 0;
+        let maxTimePerQ = 15; // 預設簡單
+
+        function goToScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const targetScreen = document.getElementById(screenId);
+            if (targetScreen) {
+                targetScreen.classList.add('active');
+                currentScreen = screenId;
+            }
+            if (screenId !== 'screen-result') {
+                stopFireworks();
+            }
+        }
+
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                validateName();
+            }
+        }
+
+        function validateName() {
+            initAudio();
+            if (isAudioEnabled && !bgmInterval) {
+                playBGM();
+            }
+
+            const nameInput = document.getElementById('player-name');
+            const errorTip = document.getElementById('name-error-tip');
+            const nameVal = nameInput.value.trim();
+            if (!nameVal) {
+                errorTip.innerText = "⚠️ 請輸入您的名字或座號才能繼續！";
+                nameInput.focus();
+                return;
+            }
+            errorTip.innerText = "";
+            playerName = nameVal;
+            goToScreen('screen-difficulty');
+        }
+
+        // 每次開始遊戲：隨機洗牌並抽選 5 題，且簡單與困難總滿分對等（均為 100 分：每題 20 分）
+        function startGame(difficulty) {
+            gameDifficulty = difficulty;
+            let pool = [...questionBank[difficulty]];
+            for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+
+            const count = 5; // 每局 5 題
+            activeQuestions = pool.slice(0, count);
+
+            currentIndex = 0;
+            score = 0;
+            wrongQuestions = [];
+            // 簡單模式 15 秒/題，困難模式 10 秒/題
+            maxTimePerQ = (difficulty === 'easy') ? 15 : 10;
+
+            document.getElementById('ui-player').innerText = playerName;
+            goToScreen('screen-game');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answeredCurrent = false;
+            const qData = activeQuestions[currentIndex];
+            
+            document.getElementById('ui-progress').innerText = `${currentIndex + 1}/${activeQuestions.length}`;
+            document.getElementById('ui-score').innerText = score;
+            document.getElementById('ui-question').innerHTML = qData.q;
+
+            const optionsContainer = document.getElementById('ui-options');
+            optionsContainer.innerHTML = '';
+
+            qData.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = opt;
+                btn.onclick = () => selectAnswer(idx);
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('ui-feedback').classList.remove('show');
+            document.getElementById('next-btn').style.display = 'none';
+
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = maxTimePerQ;
+            const timerBar = document.getElementById('timer-bar');
+            timerBar.style.width = '100%';
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const percent = (timeLeft / maxTimePerQ) * 100;
+                timerBar.style.width = `${percent}%`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeout();
+                }
+            }, 1000);
+        }
+
+        function handleTimeout() {
+            if (answeredCurrent) return;
+            answeredCurrent = true;
+            playWrongSound();
+
+            const qData = activeQuestions[currentIndex];
+            const buttons = document.querySelectorAll('.option-btn');
+            if (buttons[qData.answer]) {
+                buttons[qData.answer].classList.add('correct');
+            }
+
+            wrongQuestions.push({
+                q: qData.q,
+                userAns: "超時未作答",
+                correctAns: qData.options[qData.answer],
+                explanation: qData.explanation
+            });
+
+            document.getElementById('encouragement-text').innerText = "⏱️ 哎呀，時間到！";
+            document.getElementById('encouragement-text').style.color = "var(--danger)";
+            document.getElementById('feedback-title').innerText = "❌ 回答超時！";
+            document.getElementById('feedback-title').style.color = "var(--danger)";
+            document.getElementById('feedback-desc').innerHTML = `<b>知識解析：</b>${qData.explanation}`;
+            document.getElementById('ui-feedback').classList.add('show');
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (answeredCurrent) return;
+            answeredCurrent = true;
+            clearInterval(timerInterval);
+
+            const qData = activeQuestions[currentIndex];
+            const buttons = document.querySelectorAll('.option-btn');
+            // 滿分100分，共5題，每題20分（高低難度總分平衡）
+            const pointsPerQ = 20;
+
+            if (selectedIndex === qData.answer) {
+                playCorrectSound();
+                buttons[selectedIndex].classList.add('correct');
+                score += pointsPerQ;
+                
+                const randomEnc = encouragements[Math.floor(Math.random() * encouragements.length)];
+                document.getElementById('encouragement-text').innerText = randomEnc;
+                document.getElementById('encouragement-text').style.color = "var(--accent)";
+                document.getElementById('feedback-title').innerText = "✔ 回答正確！";
+                document.getElementById('feedback-title').style.color = "var(--accent)";
+            } else {
+                playWrongSound();
+                buttons[selectedIndex].classList.add('wrong');
+                if (buttons[qData.answer]) {
+                    buttons[qData.answer].classList.add('correct');
+                }
+
+                wrongQuestions.push({
+                    q: qData.q,
+                    userAns: qData.options[selectedIndex],
+                    correctAns: qData.options[qData.answer],
+                    explanation: qData.explanation
+                });
+
+                document.getElementById('encouragement-text').innerText = "💡 沒關係，失敗為成功之母！";
+                document.getElementById('encouragement-text').style.color = "var(--danger)";
+                document.getElementById('feedback-title').innerText = "❌ 回答錯誤！";
+                document.getElementById('feedback-title').style.color = "var(--danger)";
+            }
+
+            document.getElementById('ui-score').innerText = score;
+            document.getElementById('feedback-desc').innerHTML = `<b>知識解析：</b>${qData.explanation}`;
+            document.getElementById('ui-feedback').classList.add('show');
+            document.getElementById('next-btn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if (currentIndex < activeQuestions.length) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            goToScreen('screen-result');
+            document.getElementById('final-score-text').innerText = `最終得分：${score} 分`;
+            
+            let comment = "";
+            if (score >= 90) {
+                comment = "太強了！化學概念掌握得無懈可擊，化學實驗室大師！";
+                document.getElementById('result-emoji').innerText = "🌟";
+                startFireworks();
+            } else if (score >= 60) {
+                comment = "表現優異！基礎與深化知識都有水準以上的發揮！";
+                document.getElementById('result-emoji').innerText = "🧪";
+                startFireworks();
+            } else {
+                comment = "革命尚未成功，建議多複習錯題筆記，再挑戰一次！";
+                document.getElementById('result-emoji').innerText = "💡";
+            }
+            document.getElementById('result-comment').innerText = comment;
+
+            const wrongBtn = document.getElementById('wrong-book-btn');
+            wrongBtn.style.display = (wrongQuestions.length > 0) ? 'block' : 'none';
+
+            saveToLeaderboard(playerName, score);
+        }
+
+        function saveToLeaderboard(name, sc) {
+            try {
+                let lb = JSON.parse(localStorage.getItem('chem_high_leaderboard') || '[]');
+                lb.push({ name: name, score: sc, date: new Date().toLocaleDateString() });
+                lb.sort((a, b) => b.score - a.score);
+                lb = lb.slice(0, 5);
+                localStorage.setItem('chem_high_leaderboard', JSON.stringify(lb));
+            } catch (e) {}
+        }
+
+        function showLeaderboard() {
+            goToScreen('screen-leaderboard');
+            let lb = [];
+            try {
+                lb = JSON.parse(localStorage.getItem('chem_high_leaderboard') || '[]');
+            } catch (e) {}
+            
+            const container = document.getElementById('leaderboard-content');
+
+            if (lb.length === 0) {
+                container.innerHTML = `<p style="margin: 20px 0;">目前尚無排行榜紀錄，快來挑戰第一名吧！</p>`;
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>名次</th>
+                            <th>實驗員</th>
+                            <th>得分</th>
+                            <th>日期</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            lb.forEach((item, index) => {
+                html += `
+                    <tr>
+                        <td>#${index + 1}</td>
+                        <td>${item.name}</td>
+                        <td style="color: var(--primary); font-weight: bold;">${item.score}</td>
+                        <td>${item.date}</td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        function showWrongBook() {
+            goToScreen('screen-wrong-book');
+            const container = document.getElementById('wrong-list-content');
+            let html = '';
+
+            wrongQuestions.forEach((item, index) => {
+                html += `
+                    <div style="background: rgba(46, 42, 93, 0.8); border: 1px solid rgba(255,255,255,0.15); padding: 15px; border-radius: 14px; margin-bottom: 12px; text-align: left;">
+                        <p style="color: var(--text-main); font-weight: bold; margin-bottom: 5px;">Q${index + 1}. ${item.q}</p>
+                        <p style="color: var(--danger); margin-bottom: 3px;">您的選擇：${item.userAns}</p>
+                        <p style="color: var(--accent); margin-bottom: 5px;">正確答案：${item.correctAns}</p>
+                        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 0;"><b>解析：</b>${item.explanation}</p>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // ------------------ 通關煙花特效 ------------------
+        let fwCanvas, fwCtx, fireworksAnimId;
+        let particles = [];
+
+        function startFireworks() {
+            fwCanvas = document.getElementById('fireworks-canvas');
+            if (!fwCanvas) return;
+            fwCanvas.style.display = 'block';
+            fwCtx = fwCanvas.getContext('2d');
+            fwCanvas.width = fwCanvas.parentElement.clientWidth;
+            fwCanvas.height = fwCanvas.parentElement.clientHeight;
+
+            particles = [];
+            for (let i = 0; i < 50; i++) {
+                particles.push({
+                    x: fwCanvas.width / 2,
+                    y: fwCanvas.height / 2,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    alpha: 1,
+                    color: `hsl(${Math.random() * 360}, 100%, 65%)`
+                });
+            }
+
+            loopFireworks();
+        }
+
+        function loopFireworks() {
+            if (!fwCtx || !fwCanvas) return;
+            fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.1;
+                p.alpha -= 0.02;
+
+                fwCtx.save();
+                fwCtx.globalAlpha = Math.max(p.alpha, 0);
+                fwCtx.fillStyle = p.color;
+                fwCtx.beginPath();
+                fwCtx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+                fwCtx.fill();
+                fwCtx.restore();
+            });
+
+            particles = particles.filter(p => p.alpha > 0);
+            if (particles.length > 0) {
+                fireworksAnimId = requestAnimationFrame(loopFireworks);
+            } else {
+                if (currentScreen === 'screen-result') {
+                    for (let i = 0; i < 40; i++) {
+                        particles.push({
+                            x: Math.random() * fwCanvas.width,
+                            y: Math.random() * (fwCanvas.height / 2),
+                            vx: (Math.random() - 0.5) * 6,
+                            vy: (Math.random() - 0.5) * 6,
+                            alpha: 1,
+                            color: `hsl(${Math.random() * 360}, 100%, 65%)`
+                        });
+                    }
+                    fireworksAnimId = requestAnimationFrame(loopFireworks);
+                }
+            }
+        }
+
+        function stopFireworks() {
+            if (fireworksAnimId) {
+                cancelAnimationFrame(fireworksAnimId);
+            }
+            if (fwCanvas) {
+                fwCanvas.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
